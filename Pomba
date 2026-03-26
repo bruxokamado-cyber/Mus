@@ -1,0 +1,196 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "👻 Ghostzin Hub | Premium Edition",
+   LoadingTitle = "Iniciando Ghostzin Hub...",
+   ConfigurationSaving = {Enabled = true, FolderName = "GhostzinConfig", FileName = "Main"}
+})
+
+-- Variáveis Globais para Fly e Noclip
+local flyEnabled = false
+local flySpeed = 50
+local noclip = false
+local c = nil
+local lp = game.Players.LocalPlayer
+
+-- Abas
+local MainTab = Window:CreateTab("Movimento", 4483362458)
+local VisualTab = Window:CreateTab("Visuais", 4483362458)
+local ServerTab = Window:CreateTab("Morph/Skin", 4483362458)
+
+-- SISTEMA DE FLY (Estilo Fly GUI V3)
+MainTab:CreateToggle({
+   Name = "Ativar Voo (Fly)",
+   CurrentValue = false,
+   Callback = function(Value)
+      flyEnabled = Value
+      if flyEnabled then
+         local char = lp.Character
+         local hrp = char:WaitForChild("HumanoidRootPart")
+         
+         local bv = Instance.new("BodyVelocity", hrp)
+         bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+         bv.Velocity = Vector3.new(0, 0, 0)
+         bv.Name = "GhostFly"
+         
+         local bg = Instance.new("BodyGyro", hrp)
+         bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+         bg.P = 15000
+         bg.D = 500
+         bg.Name = "GhostGyro"
+
+         spawn(function()
+            while flyEnabled do
+               local cam = workspace.CurrentCamera.CFrame
+               local moveDir = Vector3.new(0,0,0)
+               
+               -- Controles básicos integrados à câmera
+               bv.Velocity = cam.LookVector * flySpeed
+               bg.CFrame = cam
+               task.wait()
+            end
+            if bv then bv:Destroy() end
+            if bg then bg:Destroy() end
+         end)
+      end
+   end,
+})
+
+MainTab:CreateSlider({
+   Name = "Velocidade do Voo",
+   Range = {10, 500},
+   Increment = 1,
+   CurrentValue = 50,
+   Callback = function(Value)
+      flySpeed = Value
+   end,
+})
+
+-- SISTEMA DE NOCLIP
+MainTab:CreateToggle({
+   Name = "Ativar Noclip (Atravessar)",
+   CurrentValue = false,
+   Callback = function(Value)
+      noclip = Value
+      game:GetService("RunService").Stepped:Connect(function()
+         if noclip then
+            for _, v in pairs(lp.Character:GetDescendants()) do
+               if v:IsA("BasePart") then
+                  v.CanCollide = false
+               end
+            end
+         end
+      end)
+   end,
+})
+
+-- SPEED E JUMP (Ajustáveis)
+MainTab:CreateSlider({
+   Name = "Velocidade de Caminhada",
+   Range = {16, 500},
+   Increment = 1,
+   CurrentValue = 16,
+   Callback = function(v) lp.Character.Humanoid.WalkSpeed = v end,
+})
+
+MainTab:CreateSlider({
+   Name = "Força do Pulo",
+   Range = {50, 500},
+   Increment = 1,
+   CurrentValue = 50,
+   Callback = function(v) lp.Character.Humanoid.JumpPower = v end,
+})
+
+-- VISUAIS E DIVERSÃO
+VisualTab:CreateToggle({
+   Name = "ESP Players",
+   CurrentValue = false,
+   Callback = function(state)
+      for _, v in pairs(game.Players:GetPlayers()) do
+         if v ~= lp and v.Character then
+            if state then
+               local hl = Instance.new("Highlight", v.Character)
+               hl.Name = "GhostESP"
+               hl.FillColor = Color3.fromRGB(170, 0, 255)
+            else
+               if v.Character:FindFirstChild("GhostESP") then v.Character.GhostESP:Destroy() end
+            end
+         end
+      end
+   end,
+})
+
+VisualTab:CreateButton({
+   Name = "Girar Personagem (Spin)",
+   Callback = function()
+      local spin = Instance.new("BodyAngularVelocity", lp.Character.HumanoidRootPart)
+      spin.AngularVelocity = Vector3.new(0, 50, 0)
+      spin.MaxTorque = Vector3.new(0, math.huge, 0)
+      task.wait(5)
+      spin:Destroy()
+   end,
+})
+
+-- MORPH SERVER-SIDE
+ServerTab:CreateInput({
+   Name = "Trocar Skin (ID)",
+   PlaceholderText = "Cole o ID aqui",
+   Callback = function(Text)
+      if game.ReplicatedStorage:FindFirstChild("MorphEvent") then
+         game.ReplicatedStorage.MorphEvent:FireServer(tonumber(Text))
+         Rayfield:Notify({Title = "Ghostzin", Content = "Processando troca de pele..."})
+      else
+         Rayfield:Notify({Title = "Erro", Content = "Crie o 'MorphEvent' no ReplicatedStorage via Studio!"})
+      end
+   end,
+})
+
+Rayfield:Notify({
+   Title = "Ghostzin Hub Prontinho!",
+   Content = "Menu carregado com sucesso.",
+   Duration = 5,
+})
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "👻 Ghostzin Hub | Sistema de Chave",
+   LoadingTitle = "Verificando Credenciais...",
+   ConfigurationSaving = {Enabled = false}
+})
+
+local Tab = Window:CreateTab("Acesso", 4483362458)
+
+local KeyInserida = ""
+
+Tab:CreateInput({
+   Name = "Insira a Key",
+   PlaceholderText = "Digite a chave aqui...",
+   Callback = function(Text)
+      KeyInserida = Text
+   end,
+})
+
+Tab:CreateButton({
+   Name = "Verificar Chave",
+   Callback = function()
+      if KeyInserida == "ghostzin" then
+         Rayfield:Notify({
+            Title = "Sucesso!",
+            Content = "Acesso liberado! Carregando Ghostzin Hub...",
+            Duration = 3
+         })
+         
+         task.wait(1.5)
+         Rayfield:Destroy() -- Fecha a janela da Key
+         
+         -- ABAIXO: O link completo do seu script no GitHub
+         loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+      else
+         Rayfield:Notify({
+            Title = "Erro!",
+            Content = "Chave incorreta. Tente novamente!",
+            Duration = 3
+         })
+      end
+   end,
+})
